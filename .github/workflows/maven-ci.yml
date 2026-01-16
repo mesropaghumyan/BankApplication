@@ -2,7 +2,7 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "master" ] # Ou "main" selon ta branche principale
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -10,33 +10,39 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # AJOUT IMPORTANT : On définit le dossier de travail par défaut pour toutes les commandes "run"
+    defaults:
+      run:
+        working-directory: ./bank-application
+
     steps:
       # 1. Récupérer le code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Installer Java 17 (correspondant à ton pom.xml)
+      # 2. Installer Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+          # On précise le chemin du pom.xml pour le cache
+          cache-dependency-path: bank-application/pom.xml
 
-      # 3. Lancer les tests (Exercice demande: mvn clean test)
+      # 3. Lancer les tests (S'exécute maintenant DANS bank-application)
       - name: Run Tests
         run: mvn clean test
 
-      # 4. Faire le package (Exercice demande: add step for mvn package)
-      # Note: On ajoute -DskipTests car les tests ont déjà tourné à l'étape d'avant
+      # 4. Faire le package
       - name: Package Application
         run: mvn package -DskipTests
 
-      # 5. Sauvegarder le dossier target comme artefact
+      # 5. Sauvegarder l'artefact
+      # Attention : Le chemin "target/" change aussi, il faut préciser le sous-dossier ici
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: bank-app-target-folder
-          path: target/
-          # Si tu veux garder l'artefact seulement 1 jour pour économiser l'espace :
+          path: bank-application/target/
           retention-days: 1
