@@ -1,0 +1,65 @@
+name: Java Report for BankApplication
+
+on: [push, workflow_dispatch]
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupérer le code du dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Vérifier s'il y a des fichiers .class (Critère d'échec)
+      - name: Check for committed .class files
+        run: |
+          echo "Scanning for .class files..."
+          # Cherche les fichiers finissant par .class
+          if find . -name "*.class" | grep -q .; then
+            echo "Error: Found committed .class files! This is bad practice."
+            echo "List of .class files found:"
+            find . -name "*.class"
+            exit 1 # Fait échouer le workflow
+          else
+            echo "No .class files found. Good job!"
+          fi
+
+      # 3. Générer le rapport (Compter fichiers et lignes)
+      - name: Generate Java File Report
+        run: |
+          echo "Generating report..."
+          REPORT_FILE="java-file-report.txt"
+          
+          # Initialiser le fichier
+          echo "JAVA FILE REPORT" > $REPORT_FILE
+          echo "=================" >> $REPORT_FILE
+          
+          # Compter le nombre de fichiers .java
+          JAVA_FILE_COUNT=$(find . -type f -name "*.java" | wc -l)
+          echo "Number of .java files: $JAVA_FILE_COUNT" >> $REPORT_FILE
+          
+          # Vérifier s'il y a des fichiers Java (Critère d'échec)
+          if [ "$JAVA_FILE_COUNT" -eq 0 ]; then
+            echo "Error: No .java files found in the repository."
+            exit 1
+          fi
+
+          # Calculer le nombre total de lignes et le détail par fichier
+          echo "" >> $REPORT_FILE
+          echo "Total Lines of Code & Per-file breakdown:" >> $REPORT_FILE
+          echo "-----------------------------------------" >> $REPORT_FILE
+          
+          # La commande 'wc -l' compte les lignes. 
+          # find ... -exec wc -l {} + permet de passer tous les fichiers à wc
+          find . -type f -name "*.java" -print0 | xargs -0 wc -l >> $REPORT_FILE
+          
+          # Afficher le contenu dans la console pour le debug (optionnel)
+          cat $REPORT_FILE
+
+      # 4. Uploader le fichier texte comme artefact
+      - name: Upload Report Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-file-report
+          path: java-file-report.txt
