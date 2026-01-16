@@ -16,188 +16,189 @@ import java.util.ArrayList;
  */
 public class Bank {
 
-	private static ArrayList<BankAccount> Accounts;
-	private final int initialSize = 1000;
-	private boolean success;
-	// private double maximumBalance;
-	private double averageBalance;
-	// private double minumumBalance;
-	private int accNumber = 1;
-	private int accountsLoaded = 0;
-	// Bank accManeger = new Bank();
+    private static ArrayList<BankAccount> Accounts;
+    private final int initialSize = 1000;
+    private boolean success;
+    // private double maximumBalance;
+    private double averageBalance;
+    // private double minumumBalance;
+    private int accNumber = 1;
+    private int accountsLoaded = 0;
+    // Bank accManeger = new Bank();
 
-	public Bank() {
+    public Bank() {
+        Accounts = new ArrayList<BankAccount>(initialSize);
+    }
 
-		Accounts = new ArrayList<BankAccount>(initialSize);
+    public int addAccount(BankAccount acc, int isLoadAccount) {
+        if (isLoadAccount == 0) {
+            Accounts.add(acc);
+            acc.setAccountNumber(accNumber);
+            accountsLoaded++;
+            accNumber++;
+        }
+        if (isLoadAccount == 1) {
+            Accounts.add(acc);
+            accountsLoaded++;
+            return accountsLoaded;
+        }
+        if (isLoadAccount == 2) {
+            int accnumber1 = accountsLoaded + 1;
+            Accounts.add(acc);
+            acc.setAccountNumber(accnumber1);
+            accountsLoaded++;
+        }
+        return acc.getAccountNumber();
+    }
 
-	}
+    protected void setAccountsLoaded(int accountsLoaded) {
+        this.accountsLoaded = accountsLoaded;
+    }
 
-	public int addAccount(BankAccount acc, int isLoadAccount) {
-		if (isLoadAccount == 0) {
-			Accounts.add(acc);
-			acc.setAccountNumber(accNumber);
-			accountsLoaded++;
-			accNumber++;
-		}
-		if (isLoadAccount == 1) {
-			Accounts.add(acc);
-			accountsLoaded++;
-			return accountsLoaded;
-		}
-		if (isLoadAccount == 2) {
-			int accnumber1 = accountsLoaded + 1;
-			Accounts.add(acc);
-			acc.setAccountNumber(accnumber1);
-			accountsLoaded++;
-		}
-		return acc.getAccountNumber();
-	}
+    // --- MODIFICATION 1 : PROTECTED -> PUBLIC ---
+    public int getAccountsLoaded() {
+        return accountsLoaded;
+    }
 
-	protected void setAccountsLoaded(int accountsLoaded) {
-		this.accountsLoaded = accountsLoaded;
-	}
+    public BankAccount findAccount(int accountNumber) { // FIX THIS NOW have account creater start at 0 instead of 1
+        int compareAccountNumber = 0;
+        BankAccount correctAccount = null;
+        for (int i = 0; i < Accounts.size(); i++) {
+            BankAccount acc = Accounts.get(i);
+            compareAccountNumber = acc.getAccountNumber();
 
-	protected int getAccountsLoaded() {
-		return accountsLoaded;
-	}
+            if (accountNumber == compareAccountNumber) {
+                success = true;
+                correctAccount = acc;
+                break;
+            }
 
-	public BankAccount findAccount(int accountNumber) { // FIX THIS NOW have account creater start at 0 instead of 1
-		int compareAccountNumber = 0;
-		BankAccount correctAccount = null;
-		for (int i = 0; i < Accounts.size(); i++) {
-			BankAccount acc = Accounts.get(i);
-			compareAccountNumber = acc.getAccountNumber();
+        }
+        if (success == true) {
+            return correctAccount;
+        } else {
+            return null;
+        }
 
-			if (accountNumber == compareAccountNumber) {
-				success = true;
-				correctAccount = acc;
-				break;
-			}
+    }
 
-		}
-		if (success == true) {
-			return correctAccount;
-		} else {
-			return null;
-		}
+    public void deleteAccount(int accountNumber) {
+        for (int i = 0; i < Accounts.size(); i++) {
+            BankAccount acc = Accounts.get(i);
+            int compareAccountNumber = acc.getAccountNumber();
 
-	}
+            if (accountNumber == compareAccountNumber) {
+                Accounts.remove(acc);
+            }
 
-	public void deleteAccount(int accountNumber) {
-		for (int i = 0; i < Accounts.size(); i++) {
-			BankAccount acc = Accounts.get(i);
-			int compareAccountNumber = acc.getAccountNumber();
+        }
+    }
 
-			if (accountNumber == compareAccountNumber) {
-				Accounts.remove(acc);
-			}
+    public double getAverageBalance() {
+        double total = 0.0;
 
-		}
-	}
+        for (int i = 0; i < Accounts.size(); i++) {
+            BankAccount tmpAcc = Accounts.get(i);
 
-	public double getAverageBalance() {
-		double total = 0.0;
+            total += tmpAcc.getBalance();
+        }
+        averageBalance = total / Accounts.size();
 
-		for (int i = 0; i < Accounts.size(); i++) {
-			BankAccount tmpAcc = Accounts.get(i);
+        return averageBalance;
+    }
 
-			total += tmpAcc.getBalance();
-		}
-		averageBalance = total / Accounts.size();
+    public double getMaximumBalance() {
+        // CORRECTION : On initialise à la plus petite valeur possible pour gérer les négatifs
+        // Au lieu de double maximumBalance = 0.0;
+        double maximumBalance = -Double.MAX_VALUE;
 
-		return averageBalance;
-	}
+        for (int i = 0; i < Accounts.size(); i++) {
+            BankAccount tmpAcc = Accounts.get(i);
 
-	public double getMaximumBalance() {
-		Double maximumBalance = 0.0;
+            if (tmpAcc.getBalance() > maximumBalance) {
+                maximumBalance = tmpAcc.getBalance();
+            }
+        }
 
-		for (int i = 0; i < Accounts.size(); i++) {
-			BankAccount tmpAcc = Accounts.get(i);
+        return maximumBalance;
+    }
 
-			if (tmpAcc.getBalance() > maximumBalance) {
-				maximumBalance = tmpAcc.getBalance();
-			}
-		}
+    public double getMinimumBalance() { // if account 0 dosen't exist minimum is always 0
+        Double minimumBalance = 0.0;
 
-		return maximumBalance;
-	}
+        for (int i = 0; i < Accounts.size(); i++) {
 
-	public double getMinimumBalance() { // if account 0 dosen't exist minimum is always 0
-		Double minimumBalance = 0.0;
+            BankAccount tmpAcc = Accounts.get(i);
+            if (i == 0) {
+                minimumBalance = tmpAcc.getBalance();
+            }
+            if (tmpAcc.getBalance() < minimumBalance) {
+                minimumBalance = tmpAcc.getBalance();
+            }
+        }
+        return minimumBalance;
+    }
 
-		for (int i = 0; i < Accounts.size(); i++) {
+    public void saveAccounts(Bank accManager) {
+        FileOutputStream fos = null;
+        OutputStreamWriter osw = null;
+        try {
+            fos = new FileOutputStream("C:\\Users\\jay4k\\Desktop\\stuff\\Bankaccountinfo\\BankAccountinfotext.text");
+            osw = new OutputStreamWriter(fos);
+            for (int i = 0; i < Accounts.size(); i++) {
+                BankAccount tmp = Accounts.get(i);
 
-			BankAccount tmpAcc = Accounts.get(i);
-			if (i == 0) {
-				minimumBalance = tmpAcc.getBalance();
-			}
-			if (tmpAcc.getBalance() < minimumBalance) {
-				minimumBalance = tmpAcc.getBalance();
-			}
-		}
-		return minimumBalance;
-	}
+                osw.write(tmp.convertToText(tmp));
 
-	public void saveAccounts(Bank accManager) {
-		FileOutputStream fos = null;
-		OutputStreamWriter osw = null;
-		try {
-			fos = new FileOutputStream("C:\\Users\\jay4k\\Desktop\\stuff\\Bankaccountinfo\\BankAccountinfotext.text");
-			osw = new OutputStreamWriter(fos);
-			for (int i = 0; i < Accounts.size(); i++) {
-				BankAccount tmp = Accounts.get(i);
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing to file");
+        } finally {
+            if (osw != null) {
+                try {
+                    osw.close();
+                } catch (IOException e) {
+                    // no action
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    // no action
+                }
+            }
+        }
 
-				osw.write(tmp.convertToText(tmp));
+    }
 
-			}
-		} catch (IOException e) {
-			System.out.println("Error writing to file");
-		} finally {
-			if (osw != null) {
-				try {
-					osw.close();
-				} catch (IOException e) {
-					// no action
-				}
-			}
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					// no action
-				}
-			}
-		}
+    public String convertToText() {
+        String allAccountInfo = "";
+        for (int i = 0; i < Accounts.size(); i++) {
+            BankAccount acc = Accounts.get(i);
+            String AccountsInfo = acc.getAccountNumber() + Person.DELIM + acc.getBalance() + Person.DELIM
+                    + acc.getWithdrawLimit() + Person.DELIM + acc.getDateCreated() + Person.DELIM
+                    + acc.getAccountHolder();
+            allAccountInfo += AccountsInfo;
+        }
+        return allAccountInfo;
+    }
 
-	}
+    @SuppressWarnings("unchecked")
+    public ArrayList<BankAccount> getAccounts() {
+        return (ArrayList<BankAccount>) Accounts.clone();
+    }
 
-	public String convertToText() {
-		String allAccountInfo = "";
-		for (int i = 0; i < Accounts.size(); i++) {
-			BankAccount acc = Accounts.get(i);
-			String AccountsInfo = acc.getAccountNumber() + Person.DELIM + acc.getBalance() + Person.DELIM
-					+ acc.getWithdrawLimit() + Person.DELIM + acc.getDateCreated() + Person.DELIM
-					+ acc.getAccountHolder();
-			allAccountInfo += AccountsInfo;
-		}
-		return allAccountInfo;
-	}
+    public boolean registerAccount(int fromAccountNumber, int fromRoutingNumber, int destinationBank,
+                                   int toAccountNumber) {
+        return true;
+    };
 
-	@SuppressWarnings("unchecked")
-	public ArrayList<BankAccount> getAccounts() {
-		return (ArrayList<BankAccount>) Accounts.clone();
-	}
-
-	public boolean registerAccount(int fromAccountNumber, int fromRoutingNumber, int destinationBank,
-			int toAccountNumber) {
-		return true;
-	};
-
-	public boolean transferAmount(int fromAccountNumber, int fromRoutingNumber, int destinationBank,
-			int toAccountNumber, float amount) {
-		ACHServiceImpl service = new ACHServiceImpl();
-		service.transferAmount(fromAccountNumber, fromRoutingNumber, destinationBank, toAccountNumber, amount);
-		return true;
-	};
+    public boolean transferAmount(int fromAccountNumber, int fromRoutingNumber, int destinationBank,
+                                  int toAccountNumber, float amount) {
+        ACHServiceImpl service = new ACHServiceImpl();
+        service.transferAmount(fromAccountNumber, fromRoutingNumber, destinationBank, toAccountNumber, amount);
+        return true;
+    };
 
 }

@@ -1,4 +1,4 @@
-package com.imt.mines.bankAccountApp;
+package bankAccountApp;
 
 import java.util.Scanner;
 

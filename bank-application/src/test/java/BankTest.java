@@ -1,8 +1,5 @@
 package bankAccountApp;
 
-import com.imt.mines.bankAccountApp.Bank;
-import com.imt.mines.bankAccountApp.BankAccount;
-import com.imt.mines.bankAccountApp.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,6 +89,7 @@ public class BankTest {
         bank.addAccount(acc1, 2);
         bank.addAccount(acc2, 2);
 
+        // Ce test ne passera que si getAccountsLoaded() est PUBLIC dans Bank.java
         assertEquals(4, bank.getAccountsLoaded());
     }
 
@@ -106,11 +104,11 @@ public class BankTest {
         bank.addAccount(acc2, ifloadaccManager);
         bank.addAccount(acc1, ifloadaccManager);
 
-        // Then (Ça marche car 10000 > 0.0)
+        // Then
         assertEquals(10000, bank.getMaximumBalance(), 0f);
     }
 
-    // --- NOUVEAU TEST EDGE CASE (Celui qui va échouer) ---
+    // --- EXERCICE 8 : EDGE CASE ---
     @Test
     public void testGetMaximumBalance_WithAllNegativeAccounts() {
         // Scenario : Tous les comptes sont à découvert
@@ -121,7 +119,7 @@ public class BankTest {
         bank.addAccount(acc2, 0);
 
         // Act & Assert
-        // Ce test va échouer si le code initialise max à 0.0
+        // Ce test passera grâce à l'initialisation à -Double.MAX_VALUE
         assertEquals(-50.0, bank.getMaximumBalance(), 0.001, "Le solde maximum devrait être -50.0");
     }
 
@@ -135,6 +133,7 @@ public class BankTest {
         assertEquals(1000, bank.getMinimumBalance(), 0f);
     }
 
+    // --- EXERCICE 9 : JACOCO COVERAGE ---
     @Test
     public void testGetAverageBalance() {
         // Scenario : On ajoute deux comptes (100 et 200). La moyenne doit être 150.
